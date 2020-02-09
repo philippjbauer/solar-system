@@ -44,6 +44,20 @@ class Circle extends Generic {
 
     this.fx = 0 // Force in x axis
     this.fy = 0 // Force in y axis
+
+    this.init()
+  }
+
+  init () {
+    this.subscribe('collision', (o1, o2) => {
+      console.log('collision')
+
+      o1.applyForces(o1.fx * -2, o1.fy * -2)
+      o1.applyVelocities(o1.vx * -2, o1.vy * -2)
+
+      o2.applyForces(o2.fx * -2, o2.fy * -2)
+      o2.applyVelocities(o2.vx * -2, o2.vy * -2)
+    })
   }
 
   resetForces () {
@@ -51,7 +65,7 @@ class Circle extends Generic {
     this.fy = 0
   }
 
-  applyForce(fx, fy) {
+  applyForces (fx, fy) {
     this.fx += fx
     this.fy += fy
   }
@@ -59,8 +73,18 @@ class Circle extends Generic {
   applyForcesWith (o2) {
     const { fx, fy } = this.forcesWith(o2)
 
-    this.applyForce(fx, fy)
-    o2.applyForce(-fx, -fy)
+    this.applyForces(fx, fy)
+    o2.applyForces(-fx, -fy)
+  }
+
+  applyVelocities (vx, vy) {
+    this.vx += vx
+    this.vy += vy
+  }
+
+  applyAccellerations (ax, ay) {
+    this.ax += ax
+    this.ay += ay
   }
 
   distanceTo(o2) {
@@ -71,10 +95,18 @@ class Circle extends Generic {
 
     let distanceTo = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2))
 
-    const minDistance = o1.radiusX > o1.radiusY ? o1.radiusX : o1.radiusY
+    const o1Radius = o1.radiusX > o1.radiusY ? o1.radiusX : o1.radiusY
+    const o2Radius = o2.radiusX > o2.radiusY ? o2.radiusX : o2.radiusY
+    const outerDistance = distanceTo - (o1Radius) - (o2Radius)
 
-    if (distanceTo < minDistance) {
-      distanceTo = minDistance
+    
+    if (outerDistance < 0) {
+      this.emit('collision', o1, o2)
+    }
+
+    // Can't be smaller than 0 for later divisions
+    if (distanceTo < 1) {
+      distanceTo = 1
     }
 
     return { distanceTo, distanceX, distanceY }

@@ -15,7 +15,7 @@ const animator = new Animator(canvas.getContext('2d'))
 const frame = {
   width: canvas.width,
   height: canvas.height,
-  boundaries: false
+  boundaries: true
 }
 
 // Circles
@@ -49,17 +49,17 @@ const moon = new Circle({
   canvas: frame,
   color: '#ccc',
   position: {
-    x: earth.x - 12,
+    x: earth.x - 22,
     y: earth.y
   },
   radius: { x: 3 },
-  mass: 3 * 3 / 10000,
-  velocity: { x: 0.2, y: earth.vy + 0.2}
+  mass: 0.01,
+  velocity: { x: 0.5, y: earth.vy + 0.5}
 })
 animator.add(moon)
 
 add.addEventListener('click', () => {
-  animator.add(new Circle({ canvas: frame }))
+  animator.add(new Circle({ canvas: { ...frame, boundaries: true} }))
 })
 
 run.addEventListener('click', () => {
@@ -75,7 +75,7 @@ run.addEventListener('click', () => {
 pull.addEventListener('click', () => {
   animator.objects.forEach(o => o
     .unsubscribe('move-start')
-    .subscribe('move-start', (o) => o.applyForce(0, 0.01))
+    .subscribe('move-start', (o) => o.applyForces(0, 0.02))
   )
 })
 
