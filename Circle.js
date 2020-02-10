@@ -16,6 +16,7 @@ class Circle extends Generic {
       velocity: { x: null, y: null },
       position: { x: null, y: null },
       movable: true,
+      collide: true,
       mass: null,
       gravity: 9.8
     }
@@ -52,39 +53,64 @@ class Circle extends Generic {
     this.subscribe('collision', (o1, o2) => {
       console.log('collision')
 
-      o1.applyForces(o1.fx * -2, o1.fy * -2)
-      o1.applyVelocities(o1.vx * -2, o1.vy * -2)
+      const v1 = [ o1.vx, o1.vy ]
+      const v2 = [ o2.vx, o2.vy ]
+      const vSum = [ (v1[0] + v2[0]), (v1[1] + v2[1]) ]
 
-      o2.applyForces(o2.fx * -2, o2.fy * -2)
-      o2.applyVelocities(o2.vx * -2, o2.vy * -2)
+      console.log('Vector 1', v1)
+      console.log('Vector 2', v2)
+      console.log('Vector Sum', vSum)
+      
+      const n1 = [ v1[0] - vSum[0], v1[1] - vSum[1] ]
+      const n2 = [ v2[0] - vSum[0], v2[1] - vSum[1] ]
+      
+      console.log('Neg 1', n1)
+      console.log('Neg 2', n2)
+      
+      const mD = o1.m > o2.m
+        ? o1.m / o2.m / 100
+        : o2.m / o1.m / 100
+
+      console.log(mD, (o1.m > o2.m ? mD : 1 - mD), (o1.m > o2.m ? 1 - mD : mD))
+
+      o1.x -= o1.ax
+      o1.y -= o1.ay
+      o1.vx = -n1[0]
+      o1.vy = -n1[1]
+      // o1.resetForce()
+      // o1.applyForce(n1[0], n1[1])
+      
+      o2.x -= o2.ax
+      o2.y -= o2.ay
+      o2.vx = -n2[0]
+      o2.vy = -n2[1]
+      // o2.resetForce()
+      // o2.applyForce(n2[0], n2[1])
     })
   }
 
-  resetForces () {
+  // Forces
+  resetForce () {
     this.fx = 0
     this.fy = 0
   }
 
-  applyForces (fx, fy) {
+  applyForce (fx, fy) {
     this.fx += fx
     this.fy += fy
   }
 
-  applyForcesWith (o2) {
+  applyForceWith (o2) {
     const { fx, fy } = this.forcesWith(o2)
 
-    this.applyForces(fx, fy)
-    o2.applyForces(-fx, -fy)
+    this.applyForce(fx, fy)
+    o2.applyForce(-fx, -fy)
   }
 
-  applyVelocities (vx, vy) {
-    this.vx += vx
-    this.vy += vy
-  }
-
-  applyAccellerations (ax, ay) {
-    this.ax += ax
-    this.ay += ay
+  // Velocity
+  resetVelocity () {
+    this.vx = 0
+    this.vy = 0
   }
 
   distanceTo(o2) {
@@ -97,10 +123,20 @@ class Circle extends Generic {
 
     const o1Radius = o1.radiusX > o1.radiusY ? o1.radiusX : o1.radiusY
     const o2Radius = o2.radiusX > o2.radiusY ? o2.radiusX : o2.radiusY
-    const outerDistance = distanceTo - (o1Radius) - (o2Radius)
-
     
-    if (outerDistance < 0) {
+    const outerDistanceTo = distanceTo - (o1Radius) - (o2Radius)
+    
+    console.log(`${o1.name} -> ${o2.name}`)
+    console.log(`${[
+      distanceX,
+      distanceY,
+      distanceTo,
+      o1Radius,
+      o2Radius,
+      outerDistanceTo
+    ].join(', ')}`)
+
+    if (this.collide && outerDistanceTo <= 0) {
       this.emit('collision', o1, o2)
     }
 

@@ -28,7 +28,8 @@ const sun = new Circle({
   },
   radius: { x: 100 },
   mass: 100,
-  movable: false
+  movable: false,
+  collide: false
 })
 animator.add(sun)
 
@@ -41,7 +42,8 @@ const earth = new Circle({
   },
   radius: { x: 10 },
   mass: 1,
-  velocity: { x: 0, y: -1.5}
+  velocity: { x: 0, y: -1.5},
+  collide: false
 })
 animator.add(earth)
 
@@ -54,7 +56,8 @@ const moon = new Circle({
   },
   radius: { x: 3 },
   mass: 0.01,
-  velocity: { x: 0.5, y: earth.vy + 0.5}
+  velocity: { x: 0.5, y: earth.vy + 0.5},
+  collide: false
 })
 animator.add(moon)
 

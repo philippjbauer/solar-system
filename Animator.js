@@ -24,6 +24,11 @@ class Animator extends Generic {
 
   add (object) {
     this.emit('add', object)
+    
+    // object.subscribe('collision', function () {
+      //   this.stop()
+      // }.bind(this))
+      
     this.objects.push(object)
     this.emit('added', object)
   }
@@ -38,12 +43,12 @@ class Animator extends Generic {
     if (this.running) {
       this.clear()
 
-      this.objects.forEach(o => o.resetForces())
+      this.objects.forEach(o => o.resetForce())
       
       this.objects.forEach((o1, i) => {
         this.objects.forEach((o2, j) => {
           if (i < j) {
-            o1.applyForcesWith(o2)
+            o1.applyForceWith(o2)
           }
         })
       })
